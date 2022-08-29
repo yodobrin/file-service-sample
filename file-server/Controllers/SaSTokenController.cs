@@ -17,7 +17,7 @@ public class SaSTokenController : ControllerBase
     public string GetSaSToken()
     {
         string token = Guid.NewGuid().ToString(); 
-        return $"this is a random token: {token}";
+        return $"this is a very random token: {token}";
     }
 
 
