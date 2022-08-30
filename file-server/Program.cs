@@ -1,7 +1,22 @@
+using Azure.Identity;
+// using Azure.Security.KeyVault.Secrets;
+// using Azure.Core;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// builder.Configuration.AddAzureKeyVault(
+//         new Uri($"https://{builder.Configuration["keyvault"]}.vault.azure.net/"),
+//         new DefaultAzureCredential());
 
+builder.Configuration.AddAzureKeyVault(
+        new Uri($"https://{builder.Configuration["keyvault"]}.vault.azure.net/"),
+        new DefaultAzureCredential(new DefaultAzureCredentialOptions
+        {
+            ManagedIdentityClientId = builder.Configuration["AzureADManagedIdentityClientId"]
+        }));
+
+
+// Add services to the container
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
