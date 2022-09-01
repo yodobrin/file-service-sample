@@ -35,7 +35,7 @@ public class SaSTokenController : ControllerBase
         };
         var feature = HttpContext.Features.Get<IHttpConnectionFeature>();
         var remoteIp = feature?.RemoteIpAddress;
-        _logger.LogInformation(feature.ToString());
+        PrintHeaders();
         remoteIp = (remoteIp!=null)?remoteIp:IPAddress.Parse("1.1.1.1");
 
         string connectionString = _configuration.GetValue<string>("storagecs");
@@ -48,7 +48,9 @@ public class SaSTokenController : ControllerBase
         return $"Container: {containerName} |Period - {_configuration["access_period"]} - ip {remoteIp.MapToIPv6()} |";
     }
 
-
+    private void PrintHeaders(){
+        _logger.LogInformation(HttpContext.Request?.Headers?.ToString());
+    }
 
 }
 
