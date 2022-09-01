@@ -49,7 +49,12 @@ public class SaSTokenController : ControllerBase
     }
 
     private void PrintHeaders(){
-        _logger.LogInformation(HttpContext.Request?.Headers?.ToString());
+        foreach (var itm in HttpContext.Request?.Headers)
+        {
+            _logger.LogInformation($"header item {itm.Key} - {itm.Value}|");
+        }
+
+        
     }
 
 }
