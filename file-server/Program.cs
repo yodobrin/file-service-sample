@@ -1,4 +1,5 @@
 using Azure.Identity;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,11 @@ builder.Configuration.AddAzureKeyVault(
             ManagedIdentityClientId = builder.Configuration["AzureADManagedIdentityClientId"]
         }));
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+});
 
 // Add services to the container
 builder.Services.AddControllers();
@@ -32,7 +38,7 @@ app.UseSwaggerUI();
 // app.UseHttpsRedirection();
 
 app.UseAuthorization();
-
+app.UseForwardedHeaders();
 app.MapControllers();
 
 app.Run();

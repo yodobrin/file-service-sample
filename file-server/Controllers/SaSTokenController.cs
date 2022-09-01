@@ -35,6 +35,7 @@ public class SaSTokenController : ControllerBase
         };
         var feature = HttpContext.Features.Get<IHttpConnectionFeature>();
         var remoteIp = feature?.RemoteIpAddress;
+        
         remoteIp = (remoteIp!=null)?remoteIp:IPAddress.Parse("1.1.1.1");
 
         string connectionString = _configuration.GetValue<string>("storagecs");
@@ -44,7 +45,7 @@ public class SaSTokenController : ControllerBase
 
         string secretValue = _configuration.GetValue<string>("test-secret");
         string token = Guid.NewGuid().ToString(); 
-        return $"Container: {containerName} |Period - {_configuration["access_period"]} - ip {remoteIp.MapToIPv4()} |";
+        return $"Container: {containerName} |Period - {_configuration["access_period"]} - ip {remoteIp.MapToIPv6()} |";
     }
 
 
