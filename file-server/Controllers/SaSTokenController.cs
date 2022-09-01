@@ -35,7 +35,7 @@ public class SaSTokenController : ControllerBase
         };
         var feature = HttpContext.Features.Get<IHttpConnectionFeature>();
         var remoteIp = feature?.RemoteIpAddress;
-        
+        _logger.LogInformation(feature.ToString());
         remoteIp = (remoteIp!=null)?remoteIp:IPAddress.Parse("1.1.1.1");
 
         string connectionString = _configuration.GetValue<string>("storagecs");
