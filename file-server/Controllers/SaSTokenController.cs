@@ -1,7 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Storage.Blob;
-using Microsoft.Azure.Storage;
+
+
+
+using Azure.Storage.Blobs;
+using Azure.Storage.Sas;
+using Azure.Storage.Blobs.Models;
 using System.Net;
+using Newtonsoft.Json;
 using Microsoft.AspNetCore.Http.Features;
 
 namespace file_server.Controllers;
@@ -13,8 +18,9 @@ public class SaSTokenController : ControllerBase
     private readonly ILogger<SaSTokenController> _logger;
     IConfiguration _configuration;
     
-    private readonly string XENVOY_IP = "X-Envoy-External-Address";
-    private readonly string XFWD4_IP = "x-forwarded-for";
+    private readonly static string XENVOY_IP = "X-Envoy-External-Address";
+    private readonly static string XFWD4_IP = "x-forwarded-for";
+    private readonly static string DEFAULT_IP = "1.1.1.1";
     public SaSTokenController(ILogger<SaSTokenController> logger, IConfiguration configuration)
     {
         _logger = logger;
@@ -24,30 +30,72 @@ public class SaSTokenController : ControllerBase
 
     [HttpGet(Name = "GetSaSToken")]
     public string GetSaSToken()
-    {                     
-        SharedAccessBlobPolicy accessPolicy = new SharedAccessBlobPolicy
-        {
-            // Define expiration to be 30 minutes from now in UTC
-            SharedAccessExpiryTime = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["access_period"])),
-            // Add permissions
-            Permissions = SharedAccessBlobPermissions.Create | SharedAccessBlobPermissions.Write
-        };
-        var feature = HttpContext.Features.Get<IHttpConnectionFeature>();
-        var remoteIp = IPAddress.Parse(FindRemoteIp());
-        
-        string connectionString = _configuration.GetValue<string>("storagecs");
+    {                                                        
+        // in case no container name is passed as part of the request, generate a new name
         string containerName = Guid.NewGuid().ToString();
-
-        // get the ip address of the caller and set it
-
-        string secretValue = _configuration.GetValue<string>("test-secret");
-        string token = Guid.NewGuid().ToString(); 
-        return $"Container: {containerName} |Period - {_configuration["access_period"]} - ip {remoteIp.MapToIPv6()} |";
+        return CreateSasToken(containerName);
+        // return $"Container: {containerName} |Period - {_configuration["access_period"]} - ip {remoteIp.MapToIPv6()} |";
     }
+
+    [HttpGet("{id}")]
+    public string GetSaSToken(string containerName)
+    {
+        return CreateSasToken(containerName);
+    }
+
+    private string CreateSasToken(string containerName)
+    {
+        dynamic result = new System.Dynamic.ExpandoObject();
+        result.ContainerName = containerName;
+        var remoteIp = IPAddress.Parse(FindRemoteIp());
+        result.RemoteIp = remoteIp.MapToIPv4();
+        // need to check that it is not 1.1.1.1
+        string connectionString = _configuration.GetValue<string>("storagecs");
+        BlobContainerClient blobClient = new BlobContainerClient(connectionString,containerName);
+        Uri sas = GetServiceSasUriForContainer(blobClient, result.remoteIp);
+        result.SasTokenUri = sas.AbsoluteUri;
+        result.SasTokenPath = sas.AbsolutePath;
+        return JsonConvert.SerializeObject(result);
+        // return string.Empty;
+    }
+    
+
+    private Uri GetServiceSasUriForContainer(BlobContainerClient containerClient, string remoteIp )
+    {
+        // Check whether this BlobContainerClient object has been authorized with Shared Key.
+        if (containerClient.CanGenerateSasUri)
+        {
+            // Create a SAS token that's valid for one hour.
+            BlobSasBuilder sasBuilder = new BlobSasBuilder()
+            {
+                BlobContainerName = containerClient.Name,
+                Resource = "c"
+            };
+
+            sasBuilder.ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(double.Parse(_configuration["access_period_minutes"]));
+            sasBuilder.SetPermissions(BlobContainerSasPermissions.Read);
+            sasBuilder.SetPermissions(BlobAccountSasPermissions.Create);
+            sasBuilder.SetPermissions(BlobAccountSasPermissions.Add);
+            sasBuilder.IPRange = SasIPRange.Parse(remoteIp);
+
+            Uri sasUri = containerClient.GenerateSasUri(sasBuilder);
+            _logger.LogInformation($"SAS URI for blob container is: {sasUri}");
+            
+
+            return sasUri;
+        }
+        else
+        {
+            _logger.LogInformation(@"BlobContainerClient must be authorized with Shared Key 
+                            credentials to create a service SAS.");
+            return null;
+        }
+    }
+
 
     private string FindRemoteIp(){
         
-        string remoteIp = "1.1.1.1";
+        string remoteIp = DEFAULT_IP;
         IHeaderDictionary? headers = HttpContext.Request?.Headers;
         if( headers!=null){
             string xenvoy = headers[XENVOY_IP];
@@ -55,11 +103,15 @@ public class SaSTokenController : ControllerBase
             remoteIp = (xenvoy!=null && xenvoy.Equals(xfwd4))?xenvoy:remoteIp;
             _logger.LogInformation($"xenvoy={xenvoy}, xfwd4={xfwd4}");
             foreach (var itm in headers)
-            {
-                
+            {                
                 _logger.LogInformation($"header item {itm.Key} - {itm.Value}|");
             }
         }
+        else
+        {
+            _logger.LogError($"The IPs do not match, cannot create token");
+        }
+            
         
         return remoteIp;
 
