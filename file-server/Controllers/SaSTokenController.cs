@@ -75,9 +75,10 @@ public class SaSTokenController : ControllerBase
 
             sasBuilder.ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(double.Parse(_configuration["access_period_minutes"]));
             sasBuilder.SetPermissions(BlobContainerSasPermissions.Read);
-            sasBuilder.SetPermissions(BlobAccountSasPermissions.Create);
-            sasBuilder.SetPermissions(BlobAccountSasPermissions.Add);
-            sasBuilder.SetPermissions(BlobAccountSasPermissions.List);
+            sasBuilder.SetPermissions(BlobContainerSasPermissions.Create);
+            sasBuilder.SetPermissions(BlobContainerSasPermissions.Add);
+            sasBuilder.SetPermissions(BlobContainerSasPermissions.List);
+            // sasBuilder.SetPermissions(B)
             sasBuilder.IPRange = SasIPRange.Parse(remoteIp);
 
             Uri sasUri = containerClient.GenerateSasUri(sasBuilder);
