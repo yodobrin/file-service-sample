@@ -52,7 +52,7 @@ public class SaSTokenController : ControllerBase
         // need to check that it is not 1.1.1.1
         string connectionString = _configuration.GetValue<string>("storagecs");
         BlobContainerClient blobClient = new BlobContainerClient(connectionString,containerName);
-        Uri sas = GetServiceSasUriForContainer(blobClient, result.remoteIp);
+        Uri sas = GetServiceSasUriForContainer(blobClient, result.RemoteIp);
         result.SasTokenUri = sas.AbsoluteUri;
         result.SasTokenPath = sas.AbsolutePath;
         return JsonConvert.SerializeObject(result);
