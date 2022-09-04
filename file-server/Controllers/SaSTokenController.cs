@@ -48,7 +48,7 @@ public class SaSTokenController : ControllerBase
         dynamic result = new System.Dynamic.ExpandoObject();
         result.ContainerName = containerName;
         var remoteIp = IPAddress.Parse(FindRemoteIp());
-        result.RemoteIp = remoteIp.MapToIPv4();
+        result.RemoteIp = remoteIp.ToString();
         // need to check that it is not 1.1.1.1
         string connectionString = _configuration.GetValue<string>("storagecs");
         BlobContainerClient blobClient = new BlobContainerClient(connectionString,containerName);
