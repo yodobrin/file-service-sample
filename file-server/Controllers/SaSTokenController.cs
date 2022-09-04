@@ -37,7 +37,7 @@ public class SaSTokenController : ControllerBase
         // return $"Container: {containerName} |Period - {_configuration["access_period"]} - ip {remoteIp.MapToIPv6()} |";
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{containerName}")]
     public string GetSaSToken(string containerName)
     {
         return CreateSasToken(containerName);
@@ -76,6 +76,7 @@ public class SaSTokenController : ControllerBase
             sasBuilder.SetPermissions(BlobContainerSasPermissions.Read);
             sasBuilder.SetPermissions(BlobAccountSasPermissions.Create);
             sasBuilder.SetPermissions(BlobAccountSasPermissions.Add);
+            sasBuilder.SetPermissions(BlobAccountSasPermissions.List);
             sasBuilder.IPRange = SasIPRange.Parse(remoteIp);
 
             Uri sasUri = containerClient.GenerateSasUri(sasBuilder);
