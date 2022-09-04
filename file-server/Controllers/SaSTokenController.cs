@@ -79,7 +79,7 @@ public class SaSTokenController : ControllerBase
             // sasBuilder.SetPermissions(BlobContainerSasPermissions.Add);
             // sasBuilder.SetPermissions(BlobContainerSasPermissions.List);
             // sasBuilder.SetPermissions(B)
-            // sasBuilder.IPRange = SasIPRange.Parse(remoteIp);
+            sasBuilder.IPRange = SasIPRange.Parse(remoteIp);
 
             Uri sasUri = containerClient.GenerateSasUri(sasBuilder);
             _logger.LogInformation($"SAS URI for blob container is: {sasUri}");
