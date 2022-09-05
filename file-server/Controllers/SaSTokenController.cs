@@ -50,11 +50,12 @@ public class SaSTokenController : ControllerBase
         var remoteIp = IPAddress.Parse(FindRemoteIp());
         result.RemoteIp = remoteIp.ToString();
         // need to check that it is not 1.1.1.1
+        result.RequestStatus = (DEFAULT_IP.Equals(result.RemoteIp))?"Failure":"Success";
         string connectionString = _configuration.GetValue<string>("storagecs");
         BlobContainerClient blobClient = new BlobContainerClient(connectionString,containerName);
         blobClient.CreateIfNotExists();
         Uri sas = GetServiceSasUriForContainer(blobClient, result.RemoteIp);
-        result.SaSUri = sas.AbsolutePath;
+        result.SaSUri = sas.AbsoluteUri;
         result.SasTokenBaseUri = sas.AbsoluteUri.Split('?')[0];
         result.SasTokenSig = sas.AbsoluteUri.Split('?')[1];
         
@@ -76,14 +77,10 @@ public class SaSTokenController : ControllerBase
             };
 
             sasBuilder.ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(double.Parse(_configuration["access_period_minutes"]));
-            
-            sasBuilder.SetPermissions(BlobSasPermissions.All);
-            
+            sasBuilder.SetPermissions(BlobSasPermissions.All);            
             sasBuilder.IPRange = SasIPRange.Parse(remoteIp);
 
             Uri sasUri = containerClient.GenerateSasUri(sasBuilder);
-            // _logger.LogInformation($"SAS URI for blob container is: {sasUri}");
-            
 
             return sasUri;
         }
