@@ -75,10 +75,10 @@ public class SaSTokenController : ControllerBase
 
             sasBuilder.ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(double.Parse(_configuration["access_period_minutes"]));
             // sasBuilder.SetPermissions(BlobContainerSasPermissions.All);
-            sasBuilder.SetPermissions(BlobSasPermissions.Add);
-            sasBuilder.SetPermissions(BlobSasPermissions.Create);
-            sasBuilder.SetPermissions(BlobSasPermissions.List);
-            // sasBuilder.SetPermissions(BlobContainerSasPermissions.Create);
+            sasBuilder.SetPermissions(BlobSasPermissions.All);
+            // sasBuilder.SetPermissions(BlobSasPermissions.Create);
+            // sasBuilder.SetPermissions(BlobSasPermissions.List);
+            // // sasBuilder.SetPermissions(BlobContainerSasPermissions.Create);
             // sasBuilder.SetPermissions(BlobContainerSasPermissions.Add);
             // sasBuilder.SetPermissions(BlobContainerSasPermissions.List);
             // sasBuilder.SetPermissions(B)
