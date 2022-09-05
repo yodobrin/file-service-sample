@@ -54,18 +54,14 @@ public class SaSTokenController : ControllerBase
         BlobContainerClient blobClient = new BlobContainerClient(connectionString,containerName);
         blobClient.CreateIfNotExists();
         Uri sas = GetServiceSasUriForContainer(blobClient, result.RemoteIp);
-        result.SasTokenUri = sas.AbsoluteUri;
-        result.SasTokenSig = GetSig(sas.AbsoluteUri);
-        // sas.
+        result.SaSUri = sas.AbsolutePath;
+        result.SasTokenBaseUri = sas.AbsoluteUri.Split('?')[0];
+        result.SasTokenSig = sas.AbsoluteUri.Split('?')[1];
+        
         return JsonConvert.SerializeObject(result);
-        // return string.Empty;
+        
     }
     
-    private string GetSig(string token)
-    {
-        string [] splits = token.Split('?');
-        return splits[1];
-    }
 
     private Uri GetServiceSasUriForContainer(BlobContainerClient containerClient, string remoteIp )
     {
