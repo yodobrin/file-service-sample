@@ -55,11 +55,17 @@ public class SaSTokenController : ControllerBase
         blobClient.CreateIfNotExists();
         Uri sas = GetServiceSasUriForContainer(blobClient, result.RemoteIp);
         result.SasTokenUri = sas.AbsoluteUri;
-        result.SasTokenPath = sas.AbsolutePath;
+        result.SasTokenSig = GetSig(sas.AbsoluteUri);
+        // sas.
         return JsonConvert.SerializeObject(result);
         // return string.Empty;
     }
     
+    private string GetSig(string token)
+    {
+        string [] splits = token.Split('?');
+        return splits[1];
+    }
 
     private Uri GetServiceSasUriForContainer(BlobContainerClient containerClient, string remoteIp )
     {
@@ -74,18 +80,13 @@ public class SaSTokenController : ControllerBase
             };
 
             sasBuilder.ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(double.Parse(_configuration["access_period_minutes"]));
-            // sasBuilder.SetPermissions(BlobContainerSasPermissions.All);
+            
             sasBuilder.SetPermissions(BlobSasPermissions.All);
-            // sasBuilder.SetPermissions(BlobSasPermissions.Create);
-            // sasBuilder.SetPermissions(BlobSasPermissions.List);
-            // // sasBuilder.SetPermissions(BlobContainerSasPermissions.Create);
-            // sasBuilder.SetPermissions(BlobContainerSasPermissions.Add);
-            // sasBuilder.SetPermissions(BlobContainerSasPermissions.List);
-            // sasBuilder.SetPermissions(B)
+            
             sasBuilder.IPRange = SasIPRange.Parse(remoteIp);
 
             Uri sasUri = containerClient.GenerateSasUri(sasBuilder);
-            _logger.LogInformation($"SAS URI for blob container is: {sasUri}");
+            // _logger.LogInformation($"SAS URI for blob container is: {sasUri}");
             
 
             return sasUri;
