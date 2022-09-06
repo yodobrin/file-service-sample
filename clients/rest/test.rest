@@ -1,0 +1,11 @@
+
+@base_url={{$dotenv sas_base_url}} 
+@file_to_add=helloworld.txt
+@sig={{$dotenv sas_sig}}
+
+PUT {{base_url}}/{{file_to_add}}?{{sig}}
+x-ms-version: 2015-02-21  
+Content-Type: text/plain; charset=UTF-8  
+x-ms-blob-type: BlockBlob  
+
+hello world
