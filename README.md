@@ -2,12 +2,11 @@
 
 ## User story
 
-(revise as real user story?)
-As a service providers, you require or use files uploaded by your customers. You are aiming for a secured, easy to maintain micro-service, that would be used either as an API or as a UI service.
+As a service provider, I need my customers to uploaded content in a secured, easy to maintain micro-service exposed as an API, so that I can process the content uploaded and perform an action on it.
 
 ## Design Approach
 
-I took these guidlines when initialy approached the solution:
+I took the following guidlines when initialy approached the solution:
 
 - Network Seperation
 - Time, role and IP based authorization
@@ -36,7 +35,7 @@ Here is the draft architecture created:
 
 >To DO: missing authentication
 
-1. Caller^1^ make a call to obtain a SaS token for a container^2^
+1. Caller<sup>1</sup> make a call to obtain a SaS token for a container<sup>2</sup>
 
 2. ContainerApp, extracts the caller IP, creates the token, and return it to the caller
 
@@ -44,9 +43,9 @@ Here is the draft architecture created:
 
 4. Second container app, validates the file uploaded is valid/clean and moves it to a verified storage account
 
-^1^ - A caller is an authorized application, user or any other identity, the project has few sample clients that are able to leverage the provided APIs, it is an implementation decsion which client to use.
+<sup>1</sup> -  A caller is an authorized application, user or any other identity, the project has few sample clients that are able to leverage the provided APIs, it is an implementation decsion which client to use.
 
-^2^ - There are two options, either the caller provided an exisiting container name, or he can create a new one.
+<sup>2</sup> - There are two options, either the caller provided an exisiting container name, or he can create a new one.
 
 > Note: The scope of this project does not address how the content is validated/verified/cleaned.
 
@@ -56,10 +55,12 @@ Here is the draft architecture created:
 - Youd storage must not be publicly exposed.
 - All uploads are considered unsafe unless verified.
 - Customer uploads must land on DMZ storage, with minimal, automatic clean up.
+- Use .net6 as programing langauge
+- Use Container Apps as the compute service
 
 ## File Server
 
-We provide two main end points, if the client did not create yet a designated container, he can call the `api/SaSToken` this will create a container with GUID as the name, and return a SaS token for that container. It is expected that the client will reuse this container in any consequtive calls. It will be implemented a validation for this.
+We provide two main end-points, if the client did not create yet a designated container, he can call the `api/SaSToken` this will create a container with GUID as the name, and return a SaS token for that container. It is expected that the client will reuse this container in any consequtive calls. It will be implemented a validation for this.
 
 ### Request
 
