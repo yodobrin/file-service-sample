@@ -1,16 +1,25 @@
 # file-service-sample
 
-## User story
+With the first version, we provide bear minimal capabilities for customers who needs to support the following user stories.
+The suggested architecture, detailed shortly, also calls for an audit or scaning capabilities that would ensure the uploaded files are safe before moving them to the secured area, as all files uploaded should be treated as un-safe.
+
+## User stories
 
 As a service provider, I need my customers to uploaded content in a secured, easy to maintain micro-service exposed as an API, so that I can process the content uploaded and perform an action on it.
 
+As a service provider, I would like to enable download of specific files for authorized devices or humans, so that they could download the content directly from storage.
+
+As a service provider, I would like to offer my customers ability to see what files they have already uploaded, so that they can download it when needed with time restricted SaS.
+
 ## Design Approach
 
-I took the following guidlines when initialy approached the solution:
+The following guidlines were considered for the solution approach:
 
 - Network Seperation
 - Time, role and IP based authorization
 - Microservice
+
+> Note, the IP restriction is provided as an ability, it does provide minimal layer of security, limiting the reuse of the same SaS by multiple users, for machine2machine communication, it would be better to authenticate the requests and have the time restriction shorter, for example having it as 30 seconds or less.
 
 Here is the draft architecture created:
 ![art](./images/hlapproach.png)
@@ -19,7 +28,7 @@ Here is the draft architecture created:
 
 > To Do: add network security components and description
 
-1. Container App - create SaS tokens and containers
+1. Container App - create SaS tokens and containers, it also provide SaS for given file with in a given container.
 
 2. Storage Account - DMZ, all content is considered unsafe
 
@@ -60,7 +69,29 @@ Here is the draft architecture created:
 
 ## File Server
 
-We provide two main end-points, if the client did not create yet a designated container, he can call the `api/SaSToken` this will create a container with GUID as the name, and return a SaS token for that container. It is expected that the client will reuse this container in any consequtive calls. It will be implemented a validation for this.
+We provide a few end-points, if the client did not create yet a designated container, he can call the `api/SaSToken` this will create a container with GUID as the name, and return a SaS token for that container. It is expected that the client will reuse this container in any consequtive calls. It will be implemented a validation for this.
+
+### SaSToken
+
+Provides SaS token, bsed on time restriction defined in configuration. We created default implementation that also allows for IP restriction based on the caller IP.
+
+#### Get
+
+Create a container and respond with the SaS token with permissions to create new blobs.
+
+#### Get by Container
+
+Gets a SaS token for given container with permissions to create new blobs.
+
+#### Get by Container/File
+
+Gets a read SaS token for the provided container and file path.
+
+### Files
+
+#### Get Container Files
+
+Return the list of files within a given container.
 
 ### Request
 
