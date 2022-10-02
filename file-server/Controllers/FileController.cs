@@ -17,12 +17,12 @@ public class FilesController : ControllerBase
         _configuration = configuration;
     }
 
-    [HttpGet]
-    // public string GetFileList()
-    // {
-    //     string token = Guid.NewGuid().ToString(); 
-    //     return $"this is a list of files: {token}";
-    // }
+    // [HttpGet]
+    // // public string GetFileList()
+    // // {
+    // //     string token = Guid.NewGuid().ToString(); 
+    // //     return $"this is a list of files: {token}";
+    // // }
 
     [HttpGet("{id}")]
     public string GetFile(string id)
