@@ -99,7 +99,7 @@ public class SaSTokenController : ControllerBase
     }
     
 
-    private Uri GetServiceSasUriForContainer(BlobContainerClient containerClient, string remoteIp )
+    private Uri? GetServiceSasUriForContainer(BlobContainerClient containerClient, string remoteIp )
     {
         // Check whether this BlobContainerClient object has been authorized with Shared Key.
         if (containerClient.CanGenerateSasUri)
