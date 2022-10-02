@@ -28,7 +28,7 @@ public class SaSTokenController : ControllerBase
  
     }
 
-    [HttpGet(Name = "GetSaSToken")]
+    [HttpGet]
     public string GetSaSToken()
     {                                                        
         // in case no container name is passed as part of the request, generate a new name
@@ -42,10 +42,10 @@ public class SaSTokenController : ControllerBase
         return CreateSasToken(container,file);
     }
 
-    [HttpGet("{containerName}")]
-    public string GetSaSToken(string containerName)
+    [HttpGet("{container}")]
+    public string GetContainerSaSToken(string container)
     {
-        return CreateSasToken(containerName);
+        return CreateSasToken(container);
     }
 
     public string CreateSasToken(string containerName, string fileName)
