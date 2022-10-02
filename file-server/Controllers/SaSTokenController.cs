@@ -92,6 +92,14 @@ public class SaSTokenController : ControllerBase
         }
     }
 
+    private static IDictionary<string, string> GetLowerCaseDictionary(IHeaderDictionary inDict) {
+        var outDict = new Dictionary<string, string>();
+        foreach (var header in inDict)
+        {
+            outDict.Add(header.Key.ToLower(), header.Value);
+        }
+        return outDict;
+    }
 
     private string FindRemoteIp(){
         
