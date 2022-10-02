@@ -34,7 +34,6 @@ public class SaSTokenController : ControllerBase
         // in case no container name is passed as part of the request, generate a new name
         string containerName = Guid.NewGuid().ToString();
         return CreateSasToken(containerName);
-        // return $"Container: {containerName} |Period - {_configuration["access_period"]} - ip {remoteIp.MapToIPv6()} |";
     }
 
     [HttpGet("{containerName}")]
@@ -77,7 +76,7 @@ public class SaSTokenController : ControllerBase
             };
 
             sasBuilder.ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(double.Parse(_configuration["access_period_minutes"]));
-            sasBuilder.SetPermissions(BlobSasPermissions.All);            
+            sasBuilder.SetPermissions(BlobSasPermissions.All);        
             sasBuilder.IPRange = SasIPRange.Parse(remoteIp);
 
             Uri sasUri = containerClient.GenerateSasUri(sasBuilder);
@@ -99,8 +98,6 @@ public class SaSTokenController : ControllerBase
         IHeaderDictionary? headers = HttpContext.Request?.Headers;
         if( headers!=null){
             // need to address the missing items
-            
-            // string xenvoy = string.Empty;//headers[XENVOY_IP];
             Microsoft.Extensions.Primitives.StringValues _xenvoy;
             headers.TryGetValue(XENVOY_IP,out _xenvoy);
 
@@ -113,7 +110,7 @@ public class SaSTokenController : ControllerBase
                 remoteIp = xenvoy;
             else if( xenvoy !=null ) remoteIp = xenvoy;
             else if (xfwd4 !=null) remoteIp = xfwd4;
-            // remoteIp = (xenvoy!=null && xenvoy.Equals(xfwd4))?xenvoy:remoteIp;
+            
             _logger.LogInformation($"xenvoy={xenvoy}, xfwd4={xfwd4}");
             foreach (var itm in headers)
             {                
