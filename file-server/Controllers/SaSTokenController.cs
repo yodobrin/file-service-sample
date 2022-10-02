@@ -36,10 +36,44 @@ public class SaSTokenController : ControllerBase
         return CreateSasToken(containerName);
     }
 
+    [HttpGet("{container}/{file}")]
+    public string GetBlobSaSToken(string container, string file)
+    {
+        return CreateSasToken(container,file);
+    }
+
     [HttpGet("{containerName}")]
     public string GetSaSToken(string containerName)
     {
         return CreateSasToken(containerName);
+    }
+
+    public string CreateSasToken(string containerName, string fileName)
+    {
+        string connectionString = _configuration.GetValue<string>("storagecs");
+        BlobContainerClient blobClient = new BlobContainerClient(connectionString,containerName);
+        if (! blobClient.Exists())
+        {
+            _logger.LogError($"Container {containerName} does not exist");
+            return $"Container {containerName} not found";
+        }
+        BlobClient blob = blobClient.GetBlobClient(fileName);
+        if(!blob.Exists())
+        {
+            _logger.LogError($"File {fileName} does not exist");
+            return $"File {fileName} not found";
+        }
+        BlobSasBuilder sasBuilder = new BlobSasBuilder()
+        {
+            BlobContainerName = containerName,
+            BlobName = fileName,
+            Resource = "b"
+        };
+        sasBuilder.ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(double.Parse(_configuration["access_period_minutes"]));
+        sasBuilder.SetPermissions(BlobSasPermissions.Read); 
+
+        return blob.GenerateSasUri(sasBuilder).AbsoluteUri;
+
     }
 
     private string CreateSasToken(string containerName)

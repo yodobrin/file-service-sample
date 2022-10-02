@@ -17,25 +17,23 @@ public class FilesController : ControllerBase
         _configuration = configuration;
     }
 
-    // [HttpGet]
-    // // public string GetFileList()
-    // // {
-    // //     string token = Guid.NewGuid().ToString(); 
-    // //     return $"this is a list of files: {token}";
-    // // }
+  
 
-    [HttpGet("{id}")]
-    public string GetFile(string id)
+    [HttpGet("{container}")]
+    public string GetFileList(string container)
     {
-        string token = Guid.NewGuid().ToString(); 
+        _logger.LogInformation($"FileController::GetFiles for container {container} starts");
         string connectionString = _configuration.GetValue<string>("storagecs");
-        BlobContainerClient blobClient = new BlobContainerClient(connectionString,id);
+        BlobContainerClient blobClient = new BlobContainerClient(connectionString,container);
         if(blobClient.Exists())
         {
             Azure.Pageable<BlobItem> blobs = blobClient.GetBlobs();
-            return GetBlobListAsJson(blobs, id);
+            return GetBlobListAsJson(blobs, container);
         }
-        else return $"Something is wrong, no files for {id}.";
+        else {
+            _logger.LogError($"Container {container} provided does not exist");
+            return $"Something is wrong, no files for {container}.";
+        }
     }
 
     private string GetBlobListAsJson(Azure.Pageable<BlobItem> blobs, string containerName){
