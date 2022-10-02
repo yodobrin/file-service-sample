@@ -36,18 +36,20 @@ public class SaSTokenController : ControllerBase
         return CreateSasToken(containerName);
     }
 
-    [HttpGet("{container}/{file}")]
-    public string GetBlobSaSToken(string container, string file)
-    {
-        return CreateSasToken(container,file);
-    }
+    
 
     [HttpGet("{container}")]
-    public string GetContainerSaSToken(string container)
+    public string GetSaSToken(string container)
     {
         return CreateSasToken(container);
     }
 
+[   HttpGet("{container}/{file}")]
+    public string GetSaSToken(string container, string file)
+    {
+        return CreateSasToken(container,file);
+    }
+    
     public string CreateSasToken(string containerName, string fileName)
     {
         string connectionString = _configuration.GetValue<string>("storagecs");
