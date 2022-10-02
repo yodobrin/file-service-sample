@@ -49,8 +49,8 @@ public class SaSTokenController : ControllerBase
     {
         return CreateSasToken(container,file);
     }
-    
-    public string CreateSasToken(string containerName, string fileName)
+
+    private string CreateSasToken(string containerName, string fileName)
     {
         string connectionString = _configuration.GetValue<string>("storagecs");
         BlobContainerClient blobClient = new BlobContainerClient(connectionString,containerName);
