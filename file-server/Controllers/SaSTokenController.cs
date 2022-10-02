@@ -17,8 +17,8 @@ public class SaSTokenController : ControllerBase
 {
     private readonly ILogger<SaSTokenController> _logger;
     IConfiguration _configuration;
-    
-    private readonly static string XENVOY_IP = "X-Envoy-External-Address";
+                                                
+    private readonly static string XENVOY_IP = "x-envoy-external-address";
     private readonly static string XFWD4_IP = "x-forwarded-for";
     private readonly static string DEFAULT_IP = "1.1.1.1";
     public SaSTokenController(ILogger<SaSTokenController> logger, IConfiguration configuration)
@@ -98,9 +98,22 @@ public class SaSTokenController : ControllerBase
         string remoteIp = DEFAULT_IP;
         IHeaderDictionary? headers = HttpContext.Request?.Headers;
         if( headers!=null){
-            string xenvoy = headers[XENVOY_IP];
-            string xfwd4 = headers[XFWD4_IP];
-            remoteIp = (xenvoy!=null && xenvoy.Equals(xfwd4))?xenvoy:remoteIp;
+            // need to address the missing items
+            
+            // string xenvoy = string.Empty;//headers[XENVOY_IP];
+            Microsoft.Extensions.Primitives.StringValues _xenvoy;
+            headers.TryGetValue(XENVOY_IP,out _xenvoy);
+
+            Microsoft.Extensions.Primitives.StringValues _xfwd4;
+            headers.TryGetValue(XFWD4_IP,out _xfwd4);
+
+            string xenvoy = _xenvoy.ToString();
+            string xfwd4 = _xfwd4.ToString();
+            if((xenvoy !=null && xfwd4!=null) && xenvoy.Equals(xfwd4))
+                remoteIp = xenvoy;
+            else if( xenvoy !=null ) remoteIp = xenvoy;
+            else if (xfwd4 !=null) remoteIp = xfwd4;
+            // remoteIp = (xenvoy!=null && xenvoy.Equals(xfwd4))?xenvoy:remoteIp;
             _logger.LogInformation($"xenvoy={xenvoy}, xfwd4={xfwd4}");
             foreach (var itm in headers)
             {                
