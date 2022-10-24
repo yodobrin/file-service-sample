@@ -1,11 +1,43 @@
 
-@base_url={{$dotenv sas_base_url}} 
+@base_url={{$dotenv fs_base_url}}
+@blob_base_url={{$dotenv sas_base_url}} 
 @file_to_add=helloworld.txt
 @sig={{$dotenv sas_sig}}
 
-PUT {{base_url}}/{{file_to_add}}?{{sig}}
+# Create and get SaS token for a container
+GET {{base_url}}/api/SaSToken
+
+
+###
+
+# Get a token for an exisiting container
+@exisitng_container=your_container
+GET {{base_url}}/api/SaSToken/{{exisitng_container}}
+
+###
+
+# Get a token for a specific file (for download)
+@file=your_file
+@container=your_container
+GET {{base_url}}/api/SaSToken/{{container}}/{{file}}
+
+
+
+###
+
+# Get a list of files within specific container
+@container=your_container
+GET {{base_url}}/api/Files/{{container}}
+
+###
+
+# upload content to specific path using a generated token
+PUT {{blob_base_url}}/{{file_to_add}}?{{sig}}
 x-ms-version: 2015-02-21  
 Content-Type: text/plain; charset=UTF-8  
 x-ms-blob-type: BlockBlob  
 
 hello world
+
+###
+

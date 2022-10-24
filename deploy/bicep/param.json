@@ -1,0 +1,21 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {    
+      "userObjId":{
+        "value": "your user id"
+      },         
+      "key_vault_name": {
+        "value": "fsakv"
+      },
+      "acr_name":{
+        "value": "fsacr"
+      },
+      "suffix": {
+          "value": "doc2022"
+      },
+      "dmzSecName" :{
+        "value": "storagecs"
+      }
+    }
+  }
