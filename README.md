@@ -42,11 +42,15 @@ Here is the draft architecture created:
 
 ### Getting started
 
-Using the following steps you can spin up an entire enviorment 
-Clone the repo
-Navigate to the ```deploy/bicep``` directory
-modify the param.json file to reflect your individual settings
-run
+Using the following steps you can spin up an entire enviorment: 
+
+1. Clone the repo
+
+2. Navigate to the ```deploy/bicep``` directory
+
+3. modify the param.json file to reflect your individual settings
+
+4. run
 
 ```azurecli
 az deployment group create --resource-group fs-test-bicep --template-file main.bicep --parameters @param.json
