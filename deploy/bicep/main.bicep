@@ -1,7 +1,5 @@
 @description('The location of the resource group and the location in which all resurces would be created')
 param location string = resourceGroup().location
-// @description('The resource group name')
-// param rg_name string = resourceGroup().name 
 @description('The name of the keyvault')
 param key_vault_name string 
 @description('the acr name')
@@ -26,21 +24,10 @@ resource dmz_storage 'Microsoft.Storage/storageAccounts@2021-02-01' = {
 resource mng_identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
   name: 'fsidentity${suffix}'
   location: location
-  tags: {
-    tagName1: 'tagValue1'
-    tagName2: 'tagValue2'
-  }
 }
 
-
-// param vault_version string
-// param tenantId string = subscription().tenantId
-// param subscriptionId string = subscription().subscriptionId
+@description('the secret name in which the storage connection string would be stored')
 param dmzSecName string
-
-
-
-
 
 module AKV 'keyvault.bicep' = {
   name: 'keyVault'
@@ -63,6 +50,38 @@ module ACR 'acr.bicep' = {
   }
 }
 
+@description('Name of the log analytics workspace')
+param logAnalyticsName string
 
-//az deployment group create --resource-group fs-test-bicep --template-file main.bicep --parameters @param.json
+resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview' = {
+  name: '${logAnalyticsName}${suffix}'
+  location: location
+  properties: {
+    sku: {
+      name: 'PerGB2018'
+    }
+  }
+}
+
+@description('Name of the Container App Environment')
+param containerAppEnvName string
+
+module ACA 'aca.bicep' = {
+  name: 'aca'
+  params: {
+    location: location
+    name: '${containerAppEnvName}${suffix}'
+    customerId: logAnalytics.properties.customerId
+    sharedKey: logAnalytics.listKeys().primarySharedKey
+    managedIdentityName: mng_identity.id
+    targetPort: 7267
+    fsApiContainerName: 'yodobrin/file-service-sample:latest'
+    registryLoginServer: 'ghcr.io'
+    keyvaultname: AKV.outputs.key_vault_name
+    azureADManagedIdentityClientId: mng_identity.properties.clientId
+  }
+}
+
+output fqdn string = ACA.outputs.fqdn
+
 

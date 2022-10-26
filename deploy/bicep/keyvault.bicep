@@ -65,7 +65,6 @@ resource kv 'Microsoft.KeyVault/vaults@2021-04-01-preview' = {
   }
 }
 // allowing the managed identity to read secrets from the vault
-// param akvReader string = 'Key Vault Secrets User'
 resource CryptoAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(roleIdMapping.Key_Vault_Secrets_User,managedIdentity,kv.id)
   scope: kv
@@ -78,8 +77,6 @@ resource CryptoAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-pr
 
 // allowing the user creating this vault, all actions - it is not required post deployment
 // since the user creating this resources would need to create new secrets, it needs these roles
-
-// param adminRole string = 'Key Vault Administrator'
 resource adminAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(roleIdMapping.Key_Vault_Administrator,userObjId,kv.id)
   scope: kv
@@ -101,7 +98,6 @@ resource readerAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-pr
   }
 }
 
-// param ownerRole string = 'Owner'
 resource ownerAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(roleIdMapping.Owner,userObjId,kv.id)
   scope: kv

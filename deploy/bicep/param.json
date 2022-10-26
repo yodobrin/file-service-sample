@@ -12,10 +12,16 @@
         "value": "fsacr"
       },
       "suffix": {
-          "value": "doc2022"
+          "value": "unique suffix to be added to resources names"
       },
       "dmzSecName" :{
         "value": "storagecs"
+      },
+      "logAnalyticsName" :{
+        "value": "<name of the log analytics workspace>"
+      },
+      "containerAppEnvName" :{
+        "value": "fscontenv"
       }
     }
   }

@@ -40,6 +40,19 @@ Here is the draft architecture created:
 
 6. Azure KeyVault - holds connection strings and other secured configuration
 
+### Getting started
+
+Using the following steps you can spin up an entire enviorment 
+Clone the repo
+Navigate to the ```deploy/bicep``` directory
+modify the param.json file to reflect your individual settings
+run
+
+```azurecli
+az deployment group create --resource-group fs-test-bicep --template-file main.bicep --parameters @param.json
+```
+
+
 ### Flow
 
 >To DO: missing authentication
