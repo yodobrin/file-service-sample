@@ -1,7 +1,7 @@
 # file-service-sample
 
 With the first version, we provide bear minimal capabilities for customers who needs to support the following user stories.
-The suggested architecture, detailed shortly, also calls for an audit or scaning capabilities that would ensure the uploaded files are safe before moving them to the secured area, as all files uploaded should be treated as un-safe.
+The suggested architecture, detailed shortly, also calls for an audit or scanning capabilities that would ensure the uploaded files are safe before moving them to the secured area, as all files uploaded should be treated as un-safe.
 
 ## User stories
 
@@ -13,9 +13,9 @@ As a service provider, I would like to offer my customers ability to see what fi
 
 ## Design Approach
 
-The following guidlines were considered for the solution approach:
+The following guidelines were considered for the solution approach:
 
-- Network Seperation
+- Network Separation
 - Time, role and IP based authorization
 - Microservice
 
@@ -42,27 +42,27 @@ Here is the draft architecture created:
 
 ### Getting started
 
-Using the following steps you can spin up an entire enviorment: 
+Using the following steps you can spin up an entire environment:
 
 1. Clone the repo
 
 2. Navigate to the ```deploy/bicep``` directory
 
-3. modify the param.json file to reflect your individual settings
+3. Modify the param.json file to reflect your individual settings
 
-4. run
+4. Run
 
 ```azurecli
 az deployment group create --resource-group fs-test-bicep --template-file main.bicep --parameters @param.json
 ```
 
-Once you have the neviorment deployed, check the fqdn of the newly created container app, for both options listed here, you will need to add the ```/swagger``` suffix to get to the exposed apis.
+Once you have the environment deployed, check the fqdn of the newly created container app, for both options listed here, you will need to add the ```/swagger``` suffix to get to the exposed apis.
 
 - As part of the deployment output, you can search for 'fqdn' it will have the deployed container app url.
 
 - Another option is to copy it from the portal, you can find it in the overview blade of the container app.
 
-This 'vanila' version is your starting point, part of this sample, you can also leverage the github actions provided. There are few steps required to be performed on your github repo to enable it to work with your subscription & resource group. There are few online guides that would walk you through this task, here is an [example] (https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux).
+This 'vanilla' version is your starting point, part of this sample, you can also leverage the github actions provided. There are few steps required to be performed on your github repo to enable it to work with your subscription & resource group. There are few online guides that would walk you through this task, here is an [example] (https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux).
 
 ### Flow
 
@@ -76,28 +76,28 @@ This 'vanila' version is your starting point, part of this sample, you can also 
 
 4. Second container app, validates the file uploaded is valid/clean and moves it to a verified storage account
 
-<sup>1</sup> -  A caller is an authorized application, user or any other identity, the project has few sample clients that are able to leverage the provided APIs, it is an implementation decsion which client to use.
+<sup>1</sup> -  A caller is an authorized application, user or any other identity, the project has few sample clients that are able to leverage the provided APIs, it is an implementation decision which client to use.
 
-<sup>2</sup> - There are two options, either the caller provided an exisiting container name, or he can create a new one.
+<sup>2</sup> - There are two options, either the caller provided an existing container name, or he can create a new one.
 
 > Note: The scope of this project does not address how the content is validated/verified/cleaned.
 
 ## Main Design Considerations
 
 - Secured, the code must hosted in vnet enabled compute.
-- Youd storage must not be publicly exposed.
+- Your storage must not be publicly exposed.
 - All uploads are considered unsafe unless verified.
 - Customer uploads must land on DMZ storage, with minimal, automatic clean up.
-- Use .net6 as programing langauge
+- Use .net6 as programing language
 - Use Container Apps as the compute service
 
 ## File Server
 
-We provide a few end-points, if the client did not create yet a designated container, he can call the `api/SaSToken` this will create a container with GUID as the name, and return a SaS token for that container. It is expected that the client will reuse this container in any consequtive calls. It will be implemented a validation for this.
+We provide a few end-points, if the client did not create yet a designated container, he can call the `api/SaSToken` this will create a container with GUID as the name, and return a SaS token for that container. It is expected that the client will reuse this container in any consecutive calls. It will be implemented a validation for this.
 
 ### SaSToken
 
-Provides SaS token, bsed on time restriction defined in configuration. We created default implementation that also allows for IP restriction based on the caller IP.
+Provides SaS token, based on time restriction defined in configuration. We created default implementation that also allows for IP restriction based on the caller IP.
 
 #### Get
 
