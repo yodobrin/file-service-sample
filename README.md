@@ -97,7 +97,7 @@ We provide a few end-points, if the client did not create yet a designated conta
 
 ### SaSToken
 
-Provides SaS token, based on time restriction defined in configuration. We created default implementation that also allows for IP restriction based on the caller IP.
+Provides SaS token, based on the time restriction defined in configuration. We created default implementation that also allows for IP restriction based on the caller IP.
 
 #### Get
 
