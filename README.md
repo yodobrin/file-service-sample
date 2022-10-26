@@ -56,6 +56,13 @@ Using the following steps you can spin up an entire enviorment:
 az deployment group create --resource-group fs-test-bicep --template-file main.bicep --parameters @param.json
 ```
 
+Once you have the neviorment deployed, check the fqdn of the newly created container app, for both options listed here, you will need to add the ```/swagger``` suffix to get to the exposed apis.
+
+- As part of the deployment output, you can search for 'fqdn' it will have the deployed container app url.
+
+- Another option is to copy it from the portal, you can find it in the overview blade of the container app.
+
+This 'vanila' version is your starting point, part of this sample, you can also leverage the github actions provided. There are few steps required to be performed on your github repo to enable it to work with your subscription & resource group. There are few online guides that would walk you through this task, here is an [example] (https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux).
 
 ### Flow
 
