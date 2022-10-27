@@ -42,6 +42,7 @@ Here is the draft architecture created:
 
 ### Getting started
 
+> Note: Bicep does not create the resource group, so make sure to create one before you start.
 Using the following steps you can spin up an entire environment:
 
 1. Clone the repo
@@ -50,7 +51,9 @@ Using the following steps you can spin up an entire environment:
 
 3. Modify the param.json file to reflect your individual settings
 
-4. Run
+4. Confirm you have are logged in, you can run ```az login```
+
+5. Run
 
 ```azurecli
 az deployment group create --resource-group fs-test-bicep --template-file main.bicep --parameters @param.json

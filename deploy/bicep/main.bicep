@@ -26,8 +26,6 @@ resource mng_identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-
   location: location
 }
 
-@description('the secret name in which the storage connection string would be stored')
-param dmzSecName string
 
 module AKV 'keyvault.bicep' = {
   name: 'keyVault'
@@ -36,7 +34,7 @@ module AKV 'keyvault.bicep' = {
     userObjId : userObjId
     location: location
     managedIdentity: mng_identity.properties.principalId 
-    dmzSecName : dmzSecName
+    dmzSecName : 'storagecs'
     dmzSecVal: 'DefaultEndpointsProtocol=https;AccountName=${dmz_storage.name};AccountKey=${dmz_storage.listKeys().keys[0].value};EndpointSuffix=core.windows.net'    
   }
 }
