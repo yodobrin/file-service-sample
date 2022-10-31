@@ -26,6 +26,13 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddAuthorization(options =>
+{
+   options.AddPolicy("NamedPeopleOnly", policy => policy.RequireClaim("name"));
+});
+
+
+
 
 var app = builder.Build();
 
@@ -36,7 +43,6 @@ app.UseSwaggerUI();
 
 
 // app.UseHttpsRedirection();
-
 app.UseAuthorization();
 app.UseForwardedHeaders();
 app.MapControllers();
