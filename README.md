@@ -3,6 +3,17 @@
 With the first version, we provide bear minimal capabilities for customers who needs to support the following user stories.
 The suggested architecture, detailed shortly, also calls for an audit or scanning capabilities that would ensure the uploaded files are safe before moving them to the secured area, as all files uploaded should be treated as un-safe.
 
+This solution is an end-2-end microservice sample. Once deployed it will create the required Azure resources, configure them and output a URL. The solution focus on a single tenant approach, where all services are under the same tenant.
+For authentication/authorization the client credentials [flow] (https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow) was selected.
+
+> Notes:
+
+- The service validating file content is not implemented.
+
+- Authentication and Authorization flow are initial provisioned with minimal validation, addtional role assignment or any other means for authrization can be added by you.
+
+- Network security is out-of-scope for the initial version.
+
 ## User stories
 
 As a service provider, I need my customers to uploaded content in a secured, easy to maintain micro-service exposed as an API, so that I can process the content uploaded and perform an action on it.
@@ -15,7 +26,6 @@ As a service provider, I would like to offer my customers ability to see what fi
 
 The following guidelines were considered for the solution approach:
 
-- Network Separation
 - Time, role and IP based authorization
 - Microservice
 
@@ -25,8 +35,6 @@ Here is the draft architecture created:
 ![art](./images/hlapproach.png)
 
 ### Components
-
-> To Do: add network security components and description
 
 1. Container App - create SaS tokens and containers, it also provide SaS for given file with in a given container.
 
@@ -40,10 +48,23 @@ Here is the draft architecture created:
 
 6. Azure KeyVault - holds connection strings and other secured configuration
 
-### Getting started
+Addtional resource is the app registration used to govern access, this resource is not created by the bicep code, rather used by it. You will need to create and configure it via the azure portal.
+
+### Getting started - Using Bicep scripts
 
 > Note: Bicep does not create the resource group, so make sure to create one before you start.
 Using the following steps you can spin up an entire environment:
+
+Active Directory:
+An app registration is required to enable access control. At the time this sample was created there is no support by bicep for this, therefore the suggestion is to use manual steps. Create an app registration, here is a [guide] (https://learn.microsoft.com/en-us/azure/active-directory/develop/scenario-protected-web-api-app-registration) on how to do it. The guide walk you through how to create the app, add scopes. The information you would require from this step would be used to populate the ```param.json``` file. You would need:
+
+- TenantId
+
+- ClientId
+
+- Domain
+
+Once you have these (resource group + app registration) you can follow these steps, which assume you created a resource group named `fs-test-bicep`.
 
 1. Clone the repo
 
@@ -67,9 +88,20 @@ Once you have the environment deployed, check the fqdn of the newly created cont
 
 This 'vanilla' version is your starting point, part of this sample, you can also leverage the github actions provided. There are few steps required to be performed on your github repo to enable it to work with your subscription & resource group. There are few online guides that would walk you through this task, here is an [example] (https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux).
 
+
+#### Working with this sample
+
+The initial provisioning is taking an image from this repo (with the latest tag). Part of the sample also include two github actions, that builds and deploy the newly created image to the container app enviorment. There are few manual steps that are required to be done on your cloned repository allowing it to make changes to your Azure resources. There are several guides on how to do it, here is [one] (https://learn.microsoft.com/en-us/azure/container-apps/dapr-github-actions?tabs=bash)
+
 ### Flow
 
->To DO: missing authentication
+#### Authenticate - getting an access token
+
+1. Caller<sup>1</sup> makes a call to the authentication service (in this example AAD) for an access token. This flow is called client credentials flow.
+
+2. Caller can continue to call the microservice with the token aquired.
+
+#### Calling the APIs
 
 1. Caller<sup>1</sup> make a call to obtain a SaS token for a container<sup>2</sup>
 
@@ -82,8 +114,6 @@ This 'vanilla' version is your starting point, part of this sample, you can also
 <sup>1</sup> -  A caller is an authorized application, user or any other identity, the project has few sample clients that are able to leverage the provided APIs, it is an implementation decision which client to use.
 
 <sup>2</sup> - There are two options, either the caller provided an existing container name, or he can create a new one.
-
-> Note: The scope of this project does not address how the content is validated/verified/cleaned.
 
 ## Main Design Considerations
 

@@ -87,24 +87,28 @@ resource ContainerApp 'Microsoft.App/containerApps@2022-06-01-preview' = {
               value: '30'
             }
             {
-              name: 'AzureAd:Instance'
+              name: 'AzureAd__Instance'
               value: azureadinstance
             }
             {
-              name: 'AzureAd:Domain'
+              name: 'AzureAd__Domain'
               value: azureaddomain
             }
             {
-              name: 'AzureAd:ClientId'
+              name: 'AzureAd__ClientId'
               value: azureadappreg
             }
             {
-              name: 'AzureAd:TenantId'
+              name: 'AzureAd__TenantId'
               value: subscription().tenantId
             }
             {
-              name: 'AzureAd:Audience'
+              name: 'AzureAd__Audience'
               value: azureadappreg
+            }
+            {
+              name: 'AzureAd__AllowWebApiToBeAuthorizedByACL'
+              value: 'true'
             }
 
           ]        

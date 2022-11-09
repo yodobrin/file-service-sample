@@ -13,7 +13,7 @@ param suffix string
 
 // storage for diagniostic 
 resource dmz_storage 'Microsoft.Storage/storageAccounts@2021-02-01' = {
-  name: 'fs${suffix}'
+  name: 'fsdmz${suffix}'
   location: location
   kind: 'StorageV2'
   sku: {
