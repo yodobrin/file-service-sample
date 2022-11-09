@@ -4,6 +4,13 @@
 @file_to_add=helloworld.txt
 @sig={{$dotenv sas_sig}}
 
+# login related variables
+
+@tenant={{$dotenv tenant}}
+@b_app_id={{$dotenv b_app_id}}
+@b_app_sec={{$dotenv b_app_sec}}
+@fs_service_scp={{$dotenv fs_service_scp}}
+
 # Create and get SaS token for a container
 GET {{base_url}}/api/SaSToken
 
@@ -40,4 +47,12 @@ x-ms-blob-type: BlockBlob
 hello world
 
 ###
+# Obtain an access token
 
+POST https://login.microsoftonline.com/{{tenant}}/oauth2/v2.0/token HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials
+&client_id={{b_app_id}}
+&scope={{fs_service_scp}}%2F.default
+&client_secret={{b_app_sec}} 

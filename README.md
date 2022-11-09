@@ -101,6 +101,8 @@ The initial provisioning is taking an image from this repo (with the latest tag)
 
 2. Caller can continue to call the microservice with the token aquired.
 
+The repo includes [test.rest]((./clients/rest/test.rest)) with sample POST call to obtain a token.
+
 #### Calling the APIs
 
 1. Caller<sup>1</sup> make a call to obtain a SaS token for a container<sup>2</sup>
@@ -170,12 +172,16 @@ curl -X 'GET' \
 
 #### test.rest
 
-As part of this repo, I've included the [rest.test](./clients/rest/test.rest) to help test uploading content to the DMZ storage.
+As part of this repo, I've included the [test.rest](./clients/rest/test.rest) to help test the APIs and also to obtain access token.
 You will need to create an `.env` file with these entries, both are provided with in the response of the Token API.
 
 ```.env
 sas_base_url=<SasTokenBaseUri>
 sas_sig=<SasTokenSig>
+tenant=<your tenant>
+b_app_id=<the calling app client id>
+b_app_sec=<the calling app secret>
+fs_service_scp=<scope created as part of the app registration process>
 
 ```
 
