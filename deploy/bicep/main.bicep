@@ -64,6 +64,12 @@ resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2021-12-01-previ
 @description('Name of the Container App Environment')
 param containerAppEnvName string
 
+param azureadinstance string
+
+param azureaddomain string
+
+param azureadappreg string
+
 module ACA 'aca.bicep' = {
   name: 'aca'
   params: {
@@ -77,6 +83,9 @@ module ACA 'aca.bicep' = {
     registryLoginServer: 'ghcr.io'
     keyvaultname: AKV.outputs.key_vault_name
     azureADManagedIdentityClientId: mng_identity.properties.clientId
+    azureadinstance: azureadinstance
+    azureaddomain:azureaddomain
+    azureadappreg: azureadappreg
   }
 }
 

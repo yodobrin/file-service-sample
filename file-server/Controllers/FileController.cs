@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace file_server.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class FilesController : ControllerBase

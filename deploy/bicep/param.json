@@ -19,6 +19,15 @@
       },
       "containerAppEnvName" :{
         "value": "fscontenv"
+      },
+      "azureadinstance": {
+      "value" : "https://login.microsoftonline.com/"
+      },
+      "azureaddomain": {
+      "value" : "<your tenant domain>"
+      },
+      "azureadappreg": {
+      "value" : "<your registered app (a-service)>"
       }
     }
   }

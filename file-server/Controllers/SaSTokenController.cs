@@ -7,10 +7,11 @@ using Azure.Storage.Sas;
 
 using System.Net;
 using Newtonsoft.Json;
-using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Authorization;
 
 namespace file_server.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class SaSTokenController : ControllerBase

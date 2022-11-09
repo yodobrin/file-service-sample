@@ -33,6 +33,11 @@ param azureADManagedIdentityClientId string
 
 param registryLoginServer string
 
+param azureadinstance string 
+
+param azureaddomain string
+
+param azureadappreg string
 
 resource ContainerApp 'Microsoft.App/containerApps@2022-06-01-preview' = {
   name: 'file-server'
@@ -81,6 +86,27 @@ resource ContainerApp 'Microsoft.App/containerApps@2022-06-01-preview' = {
               name: 'access_period_minutes'
               value: '30'
             }
+            {
+              name: 'AzureAd:Instance'
+              value: azureadinstance
+            }
+            {
+              name: 'AzureAd:Domain'
+              value: azureaddomain
+            }
+            {
+              name: 'AzureAd:ClientId'
+              value: azureadappreg
+            }
+            {
+              name: 'AzureAd:TenantId'
+              value: subscription().tenantId
+            }
+            {
+              name: 'AzureAd:Audience'
+              value: azureadappreg
+            }
+
           ]        
         }
       ]
