@@ -4,7 +4,7 @@ With the first version, we provide bear minimal capabilities for customers who n
 The suggested architecture, detailed shortly, also calls for an audit or scanning capabilities that would ensure the uploaded files are safe before moving them to the secured area, as all files uploaded should be treated as un-safe.
 
 This solution is an end-2-end microservice sample. Once deployed it will create the required Azure resources, configure them and output a URL. The solution focus on a single tenant approach, where all services are under the same tenant.
-For authentication/authorization the client credentials [flow] (https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow) was selected.
+For authentication/authorization the client credentials [flow](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow) was selected.
 
 > Notes:
 
@@ -56,7 +56,7 @@ Addtional resource is the app registration used to govern access, this resource 
 Using the following steps you can spin up an entire environment:
 
 Active Directory:
-An app registration is required to enable access control. At the time this sample was created there is no support by bicep for this, therefore the suggestion is to use manual steps. Create an app registration, here is a [guide] (https://learn.microsoft.com/en-us/azure/active-directory/develop/scenario-protected-web-api-app-registration) on how to do it. The guide walk you through how to create the app, add scopes. The information you would require from this step would be used to populate the ```param.json``` file. You would need:
+An app registration is required to enable access control. At the time this sample was created there is no support by bicep for this, therefore the suggestion is to use manual steps. Create an app registration, here is a [guide](https://learn.microsoft.com/en-us/azure/active-directory/develop/scenario-protected-web-api-app-registration) on how to do it. The guide walk you through how to create the app, add scopes. The information you would require from this step would be used to populate the ```param.json``` file. You would need:
 
 - TenantId
 
@@ -86,12 +86,12 @@ Once you have the environment deployed, check the fqdn of the newly created cont
 
 - Another option is to copy it from the portal, you can find it in the overview blade of the container app.
 
-This 'vanilla' version is your starting point, part of this sample, you can also leverage the github actions provided. There are few steps required to be performed on your github repo to enable it to work with your subscription & resource group. There are few online guides that would walk you through this task, here is an [example] (https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux).
+This 'vanilla' version is your starting point, part of this sample, you can also leverage the github actions provided. There are few steps required to be performed on your github repo to enable it to work with your subscription & resource group. There are few online guides that would walk you through this task, here is an [example](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux).
 
 
 #### Working with this sample
 
-The initial provisioning is taking an image from this repo (with the latest tag). Part of the sample also include two github actions, that builds and deploy the newly created image to the container app enviorment. There are few manual steps that are required to be done on your cloned repository allowing it to make changes to your Azure resources. There are several guides on how to do it, here is [one] (https://learn.microsoft.com/en-us/azure/container-apps/dapr-github-actions?tabs=bash)
+The initial provisioning is taking an image from this repo (with the latest tag). Part of the sample also include two github actions, that builds and deploy the newly created image to the container app enviorment. There are few manual steps that are required to be done on your cloned repository allowing it to make changes to your Azure resources. There are several guides on how to do it, here is [one](https://learn.microsoft.com/en-us/azure/container-apps/dapr-github-actions?tabs=bash)
 
 ### Flow
 
