@@ -55,14 +55,21 @@ Addtional resource is the app registration used to govern access, this resource 
 > Note: Bicep does not create the resource group, so make sure to create one before you start.
 Using the following steps you can spin up an entire environment:
 
-Active Directory:
-An app registration is required to enable access control. At the time this sample was created there is no support by bicep for this, therefore the suggestion is to use manual steps. Create an app registration, here is a [guide](https://learn.microsoft.com/en-us/azure/active-directory/develop/scenario-protected-web-api-app-registration) on how to do it. The guide walk you through how to create the app, add scopes. The information you would require from this step would be used to populate the ```param.json``` file. You would need:
+#### Active Directory
 
-- TenantId
+__Service-A__: An app registration is required to enable access control. At the time this sample was created there is no support by bicep for this, therefore the suggestion is to use manual steps. Create an app registration, here is a [guide](https://learn.microsoft.com/en-us/azure/active-directory/develop/scenario-protected-web-api-app-registration) on how to do it. The guide walk you through how to create the app, add scopes. Read the guide carefull, and skip the parts indicated. 
 
-- ClientId
+__Service-B__:A second app registration acting as the consumer of the api is required. For this app registration you would need to create a secret.
 
-- Domain
+The information you would require from these two app registration would be used to populate the ```param.json``` file, and the .env file used for testing your solution.
+
+You would need:
+
+- TenantId - mapped to .env 'tenant'
+
+- ClientId - The __Service-A__ is used in the param.json mapped to 'azureadappreg'. The __Service-B__ is mapped to the .env file with 'b_app_id' key.
+
+- Domain - mapped to the param.json file 'azureaddomain'
 
 Once you have these (resource group + app registration) you can follow these steps, which assume you created a resource group named `fs-test-bicep`.
 
@@ -102,6 +109,10 @@ The initial provisioning is taking an image from this repo (with the latest tag)
 2. Caller can continue to call the microservice with the token aquired.
 
 The repo includes [test.rest]((./clients/rest/test.rest)) with sample POST call to obtain a token.
+
+Here is a animated view of the flow:
+
+![flow](./images/auth4.gif)
 
 #### Calling the APIs
 
