@@ -57,21 +57,15 @@ Using the following steps you can spin up an entire environment:
 
 #### Active Directory
 
-__Service-A__: An app registration is required to enable access control. At the time this sample was created there is no support by bicep for this, therefore the suggestion is to use manual steps. Create an app registration, here is a [guide](https://learn.microsoft.com/en-us/azure/active-directory/develop/scenario-protected-web-api-app-registration) on how to do it. The guide walk you through how to create the app, add scopes. Read the guide carefull, and skip the parts indicated. 
+__Service-A__: An app registration is required to enable access control. At the time this sample was created there is no support by bicep for this, therefore the suggestion is to use manual steps. Create an app registration, here is a [guide](https://learn.microsoft.com/en-us/azure/active-directory/develop/scenario-protected-web-api-app-registration) on how to do it. The guide walk you through how to create the app, add scopes. Read the guide carefull, and skip the parts indicated.
 
-__Service-B__:A second app registration acting as the consumer of the api is required. For this app registration you would need to create a secret.
+The information you would require from these two app registration would be used to populate the ```param.json``` file:
 
-The information you would require from these two app registration would be used to populate the ```param.json``` file, and the .env file used for testing your solution.
+- ClientId - The __Service-A__ ID - mapped to 'azureadappreg'.
 
-You would need:
+- Domain - mapped to 'azureaddomain'.
 
-- TenantId - mapped to .env 'tenant'
-
-- ClientId - The __Service-A__ is used in the param.json mapped to 'azureadappreg'. The __Service-B__ is mapped to the .env file with 'b_app_id' key.
-
-- Domain - mapped to the param.json file 'azureaddomain'
-
-Once you have these (resource group + app registration) you can follow these steps, which assume you created a resource group named `fs-test-bicep`.
+Once you have these (resource group + app registration) you can follow these steps.
 
 1. Clone the repo
 
@@ -84,7 +78,7 @@ Once you have these (resource group + app registration) you can follow these ste
 5. Run
 
 ```azurecli
-az deployment group create --resource-group fs-test-bicep --template-file main.bicep --parameters @param.json
+az deployment group create --resource-group <your rg name> --template-file main.bicep --parameters @param.json
 ```
 
 Once you have the environment deployed, check the fqdn of the newly created container app, for both options listed here, you will need to add the ```/swagger``` suffix to get to the exposed apis.
@@ -95,12 +89,34 @@ Once you have the environment deployed, check the fqdn of the newly created cont
 
 This 'vanilla' version is your starting point, part of this sample, you can also leverage the github actions provided. There are few steps required to be performed on your github repo to enable it to work with your subscription & resource group. There are few online guides that would walk you through this task, here is an [example](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux).
 
-
 #### Working with this sample
 
 The initial provisioning is taking an image from this repo (with the latest tag). Part of the sample also include two github actions, that builds and deploy the newly created image to the container app enviorment. There are few manual steps that are required to be done on your cloned repository allowing it to make changes to your Azure resources. There are several guides on how to do it, here is [one](https://learn.microsoft.com/en-us/azure/container-apps/dapr-github-actions?tabs=bash)
 
 ### Flow
+
+#### Active Directory - Consumning the API
+
+__Service-B__: A second app registration acting as the _consumer_ of the api is required. For this app registration you would need to create a secret. You will need to create an '.env' file. The default location should be in the same folder of the [test.rest](./clients/rest/test.rest) rest test file. (the format of the '.env' file is outlined below)
+
+- ClientId - The __Service-B__ is mapped to 'b_app_id' key.
+
+- TenantId - mapped to 'tenant'.
+
+##### test.rest
+
+As part of this repo, I've included the [test.rest](./clients/rest/test.rest) to help test the APIs and also to obtain access token.
+You will need to create an `.env` file with these entries, both are provided with in the response of the Token API.
+
+```.env
+sas_base_url=<SasTokenBaseUri>
+sas_sig=<SasTokenSig>
+tenant=<your tenant>
+b_app_id=<the calling app client id>
+b_app_sec=<the calling app secret>
+fs_service_scp=<scope created as part of the app registration process>
+
+```
 
 #### Authenticate - getting an access token
 
@@ -128,75 +144,27 @@ Here is a animated view of the flow:
 
 <sup>2</sup> - There are two options, either the caller provided an existing container name, or he can create a new one.
 
-## Main Design Considerations
+### APIs
 
-- Secured, the code must hosted in vnet enabled compute.
-- Your storage must not be publicly exposed.
-- All uploads are considered unsafe unless verified.
-- Customer uploads must land on DMZ storage, with minimal, automatic clean up.
-- Use .net6 as programing language
-- Use Container Apps as the compute service
+The project provides a few end-points, if the client did not create yet a designated container, he can call the `api/SaSToken` this will create a container with GUID as the name, and return a SaS token for that container. It is expected that the client will reuse this container in any consecutive calls. It will be implemented a validation for this.
 
-## File Server
+#### SaSToken
 
-We provide a few end-points, if the client did not create yet a designated container, he can call the `api/SaSToken` this will create a container with GUID as the name, and return a SaS token for that container. It is expected that the client will reuse this container in any consecutive calls. It will be implemented a validation for this.
+Provides SaS token, based on the time restriction defined in configuration. A default implementation that also allows for IP restriction based on the caller IP is provided with the project.
 
-### SaSToken
-
-Provides SaS token, based on the time restriction defined in configuration. We created default implementation that also allows for IP restriction based on the caller IP.
-
-#### Get
+##### Get
 
 Create a container and respond with the SaS token with permissions to create new blobs.
 
-#### Get by Container
+##### Get by Container
 
 Gets a SaS token for given container with permissions to create new blobs.
 
-#### Get by Container/File
+##### Get by Container/File
 
 Gets a read SaS token for the provided container and file path.
 
-### Files
-
-#### Get Container Files
-
-Return the list of files within a given container.
-
-### Request
-
-The request can contain the designated container name, or if one is not passed, one would be created.
-
-Here are two examples, the first is using a created container name, the second is requesting to create one.
-
-```curl
-curl -X 'GET' \
-  'https://fileserver.grayriver-46b04276.northeurope.azurecontainerapps.io/api/SaSToken/f7b969a1-e800-424a-b9c1-ab6f94e49b6d' \
-  -H 'accept: text/plain'
-```
-
-```curl
-curl -X 'GET' \
-  'https://fileserver.grayriver-46b04276.northeurope.azurecontainerapps.io/api/SaSToken' \
-  -H 'accept: text/plain'
-```
-
-#### test.rest
-
-As part of this repo, I've included the [test.rest](./clients/rest/test.rest) to help test the APIs and also to obtain access token.
-You will need to create an `.env` file with these entries, both are provided with in the response of the Token API.
-
-```.env
-sas_base_url=<SasTokenBaseUri>
-sas_sig=<SasTokenSig>
-tenant=<your tenant>
-b_app_id=<the calling app client id>
-b_app_sec=<the calling app secret>
-fs_service_scp=<scope created as part of the app registration process>
-
-```
-
-### Response
+#### SaSToken Response
 
 As part of the response, the full URI is provided together with the captured IP, the container name and also the breakdown of the URI which might be needed for few clients.
 
@@ -211,3 +179,30 @@ Here is a sample response:
     "SasTokenBaseUri":"https://xxxxxxx.blob.core.windows.net/f7b969a1-e800-424a-b9c1-ab6f94e49b6d","SasTokenSig":"sv=2021-08-06&se=2022-09-05T08%3A24%3A10Z&sip=xx.xxx.xx.xxx&sr=c&sp=racwdxyltmei&sig=XXXXXXX"
 }
 ```
+
+#### Files
+
+##### Get Container Files
+
+Return the list of files within a given container.
+
+## Main Design Considerations
+
+- Secured, the code must hosted in vnet enabled compute.
+- Your storage must not be publicly exposed.
+- All uploads are considered unsafe unless verified.
+- Customer uploads must land on DMZ storage, with minimal, automatic clean up.
+- Use .net6 as programing language
+- Use Container Apps as the compute service
+
+### Implementating addtional features
+
+.NET knowledge will come handy if you wish to add capabilities, note the 'appsetting.json' file can be used for local debuging, make sure you would have there the 'AzureAd' section populated with your details.
+
+Some of the areas that can be added:
+
+- Provision VNet, ensure all compute resources are within this network.
+
+- Enhance authorization, check for roles as an example.
+
+- Add addtional container app, which will audit the uploaded files and scan them for viruses.
