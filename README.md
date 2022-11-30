@@ -1,21 +1,21 @@
-# file-service-sample
+# Secured Blob Exchange - Creating an authorized micro-service
 
-With the first version, we provide bear minimal capabilities for customers who needs to support the following user stories.
-The suggested architecture, detailed shortly, also calls for an audit or scanning capabilities that would ensure the uploaded files are safe before moving them to the secured area, as all files uploaded should be treated as un-safe.
+This solution is an end-2-end microservice sample. The micro-service enables creation of Shared Access Token for storage account. This capability allows other calling services to upload or view content of specific containers without exchaning secrets or managing connection strings. The use SaS token is a best practice for securing access to storage account.
 
-This solution is an end-2-end microservice sample. Once deployed it will create the required Azure resources, configure them and output a URL. The solution focus on a single tenant approach, where all services are under the same tenant.
-For authentication/authorization the client credentials [flow](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow) was selected.
+The sample will create the required Azure resources, configure them and output a URL. The solution focus on a single tenant approach, where all services are under the same tenant.
 
-> Notes:
+This sample will cover the following topics:
 
-- The service validating file content is not implemented.
-
-- Authentication and Authorization flow are initial provisioned with minimal validation, addtional role assignment or any other means for authrization can be added by you.
-
-- Network security is out-of-scope for the initial version.
+- What are the user stories for this solution?
+- What was the design approach?
+- Architecture and main components overview
+- Step-by-step instructions to deploy the solution
+- Consuming the APIs provided by the solution
+- Next steps & Limitations
 
 ## User stories
 
+These are the high level user stories for the solution:
 As a service provider, I need my customers to uploaded content in a secured, easy to maintain micro-service exposed as an API, so that I can process the content uploaded and perform an action on it.
 
 As a service provider, I would like to enable download of specific files for authorized devices or humans, so that they could download the content directly from storage.
@@ -28,6 +28,7 @@ The following guidelines were considered for the solution approach:
 
 - Time, role and IP based authorization
 - Microservice
+- For authentication/authorization the client credentials [flow](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow) was selected.
 
 > Note, the IP restriction is provided as an ability, it does provide minimal layer of security, limiting the reuse of the same SaS by multiple users, for machine2machine communication, it would be better to authenticate the requests and have the time restriction shorter, for example having it as 30 seconds or less.
 
@@ -52,34 +53,32 @@ Addtional resource is the app registration used to govern access, this resource 
 
 ### Getting started - Using Bicep scripts
 
-> Note: Bicep does not create the resource group, so make sure to create one before you start.
-Using the following steps you can spin up an entire environment:
+__Prerequisites__: You will need to have the following provisioned prior to running the scripts:
 
-#### Active Directory
+- An exisitng resource group. Since Bicep does not create the resource group, so make sure to create one before you start.
+Using the following steps you can spin up an entire environment. You will need the name of the resource group to execute the bicep code.
 
-__Service-A__: An app registration is required to enable access control. At the time this sample was created there is no support by bicep for this, therefore the suggestion is to use manual steps. Create an app registration, here is a [guide](https://learn.microsoft.com/en-us/azure/active-directory/develop/scenario-protected-web-api-app-registration) on how to do it. The guide walk you through how to create the app, add scopes. Read the guide carefull, and skip the parts indicated.
+- App registration - this is the app registration that will be used to authenticate the requests to the micro-service. You will need to create it via the azure portal. Bicep does not support the creation of app registrations. Create an app registration, here is a [guide](https://learn.microsoft.com/en-us/azure/active-directory/develop/scenario-protected-web-api-app-registration) on how to do it. The guide walk you through how to create the app, add scopes. Read the guide carefull, and skip the parts indicated. The information you would require from these two app registration would be used in later steps.
 
-The information you would require from these two app registration would be used to populate the ```param.json``` file:
+    - ClientId - The __Service-A__ ID - mapped to 'azureadappreg'.
 
-- ClientId - The __Service-A__ ID - mapped to 'azureadappreg'.
-
-- Domain - mapped to 'azureaddomain'.
+    - Domain - mapped to 'azureaddomain'.
 
 Once you have these (resource group + app registration) you can follow these steps.
+
+#### Step by Step
 
 1. Clone the repo
 
 2. Navigate to the ```deploy/bicep``` directory
 
-3. Modify the param.json file to reflect your individual settings
+3. Modify the param.json file to reflect your individual settings, use the information from the prerequisites step.
 
 4. Confirm you have are logged in, you can run ```az login```
 
 5. Run
 
-```azurecli
-az deployment group create --resource-group <your rg name> --template-file main.bicep --parameters @param.json
-```
+```az deployment group create --resource-group <your rg name> --template-file main.bicep --parameters @param.json```
 
 Once you have the environment deployed, check the fqdn of the newly created container app, for both options listed here, you will need to add the ```/swagger``` suffix to get to the exposed apis.
 
@@ -87,15 +86,18 @@ Once you have the environment deployed, check the fqdn of the newly created cont
 
 - Another option is to copy it from the portal, you can find it in the overview blade of the container app.
 
-This 'vanilla' version is your starting point, part of this sample, you can also leverage the github actions provided. There are few steps required to be performed on your github repo to enable it to work with your subscription & resource group. There are few online guides that would walk you through this task, here is an [example](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux).
+##### Working with this sample
 
-#### Working with this sample
+This 'vanilla' version can be your starting point, as part of this sample, you can also leverage the github actions provided. There are few steps required to be performed on your github repo to enable it to work with your subscription & resource group. There are few online guides that would walk you through this task, here is an [example](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux).
+
 
 The initial provisioning is taking an image from this repo (with the latest tag). Part of the sample also include two github actions, that builds and deploy the newly created image to the container app enviorment. There are few manual steps that are required to be done on your cloned repository allowing it to make changes to your Azure resources. There are several guides on how to do it, here is [one](https://learn.microsoft.com/en-us/azure/container-apps/dapr-github-actions?tabs=bash)
 
 ### Flow
 
-#### Active Directory - Consumning the API
+#### Consumning the API - few Active directory settings
+
+__Service-A__: An app registration which was created in the prerequsite step. It will be the one governing access to the api.
 
 __Service-B__: A second app registration acting as the _consumer_ of the api is required. For this app registration you would need to create a secret. You will need to create an '.env' file. The default location should be in the same folder of the [test.rest](./clients/rest/test.rest) rest test file. (the format of the '.env' file is outlined below)
 
@@ -108,14 +110,13 @@ __Service-B__: A second app registration acting as the _consumer_ of the api is 
 As part of this repo, I've included the [test.rest](./clients/rest/test.rest) to help test the APIs and also to obtain access token.
 You will need to create an `.env` file with these entries, both are provided with in the response of the Token API.
 
-```.env
+```
 sas_base_url=<SasTokenBaseUri>
 sas_sig=<SasTokenSig>
 tenant=<your tenant>
 b_app_id=<the calling app client id>
 b_app_sec=<the calling app secret>
 fs_service_scp=<scope created as part of the app registration process>
-
 ```
 
 #### Authenticate - getting an access token
@@ -206,3 +207,14 @@ Some of the areas that can be added:
 - Enhance authorization, check for roles as an example.
 
 - Add addtional container app, which will audit the uploaded files and scan them for viruses.
+
+#### Limitation and thoughts
+
+With the first version, only the bear minimal capabilities were provided for customers who needs to support the following user stories.
+The suggested architecture, also calls for an audit or scanning capabilities that would ensure the uploaded files are safe before moving them to the secured area, as all files uploaded should be treated as un-safe.
+
+- The service validating file content is not implemented.
+
+- Authentication and Authorization flow are initial provisioned with minimal validation, addtional role assignment or any other means for authrization can be added by you.
+
+- Network security is out-of-scope.
